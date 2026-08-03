@@ -1,10 +1,13 @@
-// scripts/seed-admin.ts
+// scripts/seed-admin.js
+// One-time CLI script to create the FIRST admin account, since no admin exists yet
+// to use the create-admin API route. Run with: npm run seed:admin
+
 import dotenv from "dotenv";
 dotenv.config({ path: ".env.local" });
 
-import dbConnect from "../lib/dbConnect";
-import User from "../models/User";
-import { hashPassword } from "../lib/auth";
+import dbConnect from "../lib/dbConnect.js";
+import User from "../models/User.js";
+import { hashPassword } from "../lib/auth.js";
 
 async function seedAdmin() {
   const name = process.env.SEED_ADMIN_NAME || "Super Admin";
@@ -13,7 +16,9 @@ async function seedAdmin() {
   const password = process.env.SEED_ADMIN_PASSWORD;
 
   if (!email || !phone || !password) {
-    console.error("Set SEED_ADMIN_EMAIL, SEED_ADMIN_PHONE, and SEED_ADMIN_PASSWORD in .env.local before running this script.");
+    console.error(
+      "Set SEED_ADMIN_EMAIL, SEED_ADMIN_PHONE, and SEED_ADMIN_PASSWORD in .env.local before running this script."
+    );
     process.exit(1);
   }
 

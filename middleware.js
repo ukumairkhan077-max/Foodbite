@@ -1,8 +1,11 @@
-// middleware.ts
-import { NextRequest, NextResponse } from "next/server";
+// middleware.js
+// Protects all /api/admin/* routes — only ADMIN or BRANCH_MANAGER roles may pass.
+// Runs before the route handler, using the JWT from the auth_token cookie or Authorization header.
+
+import { NextResponse } from "next/server";
 import { getAuthUser } from "@/lib/auth";
 
-export function middleware(req: NextRequest) {
+export function middleware(req) {
   const { pathname } = req.nextUrl;
 
   if (pathname.startsWith("/api/admin")) {
