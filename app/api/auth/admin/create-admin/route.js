@@ -1,14 +1,14 @@
-// app/api/auth/admin/create-admin/route.ts
-// The ONLY way an admin account can be created. Caller must already be authenticated as ADMIN.
+// app/api/auth/admin/create-admin/route.js
+// The ONLY way an admin account can be created. No public signup route exists for role=ADMIN.
+// Caller must already be authenticated as an ADMIN — enforced by requireRole() below.
 
-import { NextRequest } from "next/server";
 import dbConnect from "@/lib/dbConnect";
 import User from "@/models/User";
 import { successResponse, errorResponse } from "@/utils/response";
 import { isValidEmail, isValidPassword } from "@/utils/validators";
 import { requireRole, hashPassword } from "@/lib/auth";
 
-export async function POST(req: NextRequest) {
+export async function POST(req) {
   try {
     const requester = requireRole(req, ["ADMIN"]);
     if (!requester) {
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
       },
       201
     );
-  } catch (err: any) {
+  } catch (err) {
     console.error("create-admin error:", err);
     return errorResponse("Something went wrong. Please try again.", 500);
   }

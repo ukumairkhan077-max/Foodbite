@@ -1,12 +1,14 @@
-// app/api/auth/login/route.ts
-import { NextRequest, NextResponse } from "next/server";
+// app/api/auth/login/route.js
+// Email + password login — used by BOTH customers and admins.
+// Role is embedded in the token, so the frontend decides where to redirect based on user.role.
+
 import dbConnect from "@/lib/dbConnect";
 import User from "@/models/User";
 import { successResponse, errorResponse } from "@/utils/response";
 import { isValidEmail } from "@/utils/validators";
 import { comparePassword, signAuthToken, AUTH_COOKIE_NAME, AUTH_COOKIE_MAX_AGE } from "@/lib/auth";
 
-export async function POST(req: NextRequest) {
+export async function POST(req) {
   try {
     const { email, password } = await req.json();
 
@@ -41,7 +43,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    (response as NextResponse).cookies.set(AUTH_COOKIE_NAME, authToken, {
+    response.cookies.set(AUTH_COOKIE_NAME, authToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
@@ -50,7 +52,7 @@ export async function POST(req: NextRequest) {
     });
 
     return response;
-  } catch (err: any) {
+  } catch (err) {
     console.error("login error:", err);
     return errorResponse("Something went wrong. Please try again.", 500);
   }

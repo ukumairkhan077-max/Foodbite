@@ -1,3 +1,4 @@
+// models/Category.js
 import { Schema, models, model } from "mongoose";
 
 const CategorySchema = new Schema(

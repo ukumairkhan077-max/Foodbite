@@ -1,12 +1,11 @@
-// app/api/auth/complete-registration/route.ts
-import { NextRequest, NextResponse } from "next/server";
+// app/api/auth/complete-registration/route.js
 import dbConnect from "@/lib/dbConnect";
 import User from "@/models/User";
 import { successResponse, errorResponse } from "@/utils/response";
 import { isValidEmail, isValidPassword } from "@/utils/validators";
 import { verifyTempToken, hashPassword, signAuthToken, AUTH_COOKIE_NAME, AUTH_COOKIE_MAX_AGE } from "@/lib/auth";
 
-export async function POST(req: NextRequest) {
+export async function POST(req) {
   try {
     const { tempToken, name, email, password } = await req.json();
 
@@ -54,7 +53,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    (response as NextResponse).cookies.set(AUTH_COOKIE_NAME, authToken, {
+    response.cookies.set(AUTH_COOKIE_NAME, authToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
@@ -63,7 +62,7 @@ export async function POST(req: NextRequest) {
     });
 
     return response;
-  } catch (err: any) {
+  } catch (err) {
     console.error("complete-registration error:", err);
     return errorResponse("Something went wrong. Please try again.", 500);
   }

@@ -1,12 +1,21 @@
+// models/MenuItem.js
 import { Schema, models, model } from "mongoose";
 
+// Embedded — e.g. Small/Medium/Large with a price difference from the base price
 const VariantSchema = new Schema(
-  { name: { type: String, required: true }, priceDiff: { type: Number, default: 0 } },
+  {
+    name: { type: String, required: true },
+    priceDiff: { type: Number, default: 0 },
+  },
   { _id: false }
 );
 
+// Embedded — e.g. extra cheese, ranch dip, extra patty
 const AddOnSchema = new Schema(
-  { name: { type: String, required: true }, price: { type: Number, required: true } },
+  {
+    name: { type: String, required: true },
+    price: { type: Number, required: true },
+  },
   { _id: false }
 );
 
@@ -16,13 +25,17 @@ const MenuItemSchema = new Schema(
     description: { type: String, trim: true },
     price: { type: Number, required: true },
     imageUrl: String,
+
     category: { type: Schema.Types.ObjectId, ref: "Category", required: true },
     branch: { type: Schema.Types.ObjectId, ref: "Branch" },
+
     isAvailable: { type: Boolean, default: true },
     isDeal: { type: Boolean, default: false },
     isFeatured: { type: Boolean, default: false },
+
     variants: [VariantSchema],
     addOns: [AddOnSchema],
+
     avgRating: { type: Number, default: 0 },
     reviewCount: { type: Number, default: 0 },
   },

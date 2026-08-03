@@ -1,5 +1,7 @@
+// models/Order.js
 import { Schema, models, model } from "mongoose";
 
+// Embedded — items are always read/written together with the order, never queried independently
 const OrderItemSchema = new Schema(
   {
     menuItem: { type: Schema.Types.ObjectId, ref: "MenuItem", required: true },
@@ -17,24 +19,46 @@ const OrderSchema = new Schema(
   {
     user: { type: Schema.Types.ObjectId, ref: "User", required: true },
     branch: { type: Schema.Types.ObjectId, ref: "Branch", required: true },
+
     orderType: { type: String, enum: ["DELIVERY", "PICKUP"], default: "DELIVERY" },
-    deliveryAddress: { fullAddress: String, city: String, latitude: Number, longitude: Number },
+
+    deliveryAddress: {
+      fullAddress: String,
+      city: String,
+      latitude: Number,
+      longitude: Number,
+    },
+
     items: [OrderItemSchema],
+
     status: {
       type: String,
       enum: ["PENDING", "ACCEPTED", "PREPARING", "OUT_FOR_DELIVERY", "DELIVERED", "CANCELLED"],
       default: "PENDING",
     },
-    statusHistory: [{ status: String, changedAt: { type: Date, default: Date.now } }],
-    paymentMethod: { type: String, enum: ["COD", "JAZZCASH", "EASYPAISA", "CARD"], required: true },
+    statusHistory: [
+      {
+        status: String,
+        changedAt: { type: Date, default: Date.now },
+      },
+    ],
+
+    paymentMethod: {
+      type: String,
+      enum: ["COD", "JAZZCASH", "EASYPAISA", "CARD"],
+      required: true,
+    },
     isPaid: { type: Boolean, default: false },
     paymentReference: String,
+
     subtotal: { type: Number, required: true },
     deliveryFee: { type: Number, required: true },
     discount: { type: Number, default: 0 },
     total: { type: Number, required: true },
+
     couponCode: String,
     rider: { type: Schema.Types.ObjectId, ref: "User" },
+
     cancelReason: String,
   },
   { timestamps: true }
