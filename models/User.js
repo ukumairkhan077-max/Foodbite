@@ -1,4 +1,4 @@
-// models/User.ts
+// models/User.js
 import mongoose, { Schema, models, model } from "mongoose";
 
 // Embedded subdocument — no need for a separate Address collection
