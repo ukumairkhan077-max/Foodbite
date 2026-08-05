@@ -1,0 +1,217 @@
+cat > /home/claude/food-delivery-frontend/app/globals.css << 'EOF'
+/* app/globals.css
+   Design tokens for Foodbite: dark charcoal base, marigold/mango accent —
+   inspired by street-food stall signage rather than a generic light SaaS look. */
+
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Manrope:wght@400;500;600;700&display=swap");
+
+:root {
+  /* Color */
+  --color-bg: #17130f;           /* deep charcoal-brown, like a tandoor */
+  --color-surface: #221c16;      /* slightly lifted panel color */
+  --color-border: #3a2f24;
+  --color-text: #f5efe4;         /* warm off-white */
+  --color-text-muted: #b9ab98;
+  --color-accent: #f2a93b;       /* marigold / mango */
+  --color-accent-hover: #ffbf5c;
+  --color-chili: #d64541;        /* secondary accent — used sparingly for errors/CTAs */
+  --color-success: #4a9d5b;
+
+  /* Type */
+  --font-display: "Bricolage Grotesque", system-ui, sans-serif;
+  --font-body: "Manrope", system-ui, sans-serif;
+
+  /* Layout */
+  --radius: 14px;
+  --max-width: 480px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+a {
+  color: inherit;
+}
+
+/* ── Layout shells ───────────────────────────────────── */
+
+.auth-shell {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: var(--max-width);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 32px 28px;
+}
+
+.auth-eyebrow {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-bottom: 8px;
+}
+
+.auth-title {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.auth-subtitle {
+  color: var(--color-text-muted);
+  font-size: 15px;
+  margin-bottom: 28px;
+}
+
+/* ── Form elements ───────────────────────────────────── */
+
+.field-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin-bottom: 6px;
+}
+
+.text-input {
+  width: 100%;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 13px 14px;
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.text-input:focus {
+  border-color: var(--color-accent);
+}
+
+.text-input::placeholder {
+  color: #6b5f50;
+}
+
+.btn-primary {
+  width: 100%;
+  background: var(--color-accent);
+  color: #1a1410;
+  border: none;
+  border-radius: 10px;
+  padding: 14px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--color-accent-hover);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: scale(0.99);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary:focus-visible,
+.text-input:focus-visible,
+.otp-digit:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.error-text {
+  color: var(--color-chili);
+  font-size: 13.5px;
+  margin-top: 10px;
+}
+
+.helper-link {
+  color: var(--color-accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.helper-link:hover {
+  text-decoration: underline;
+}
+
+/* ── OTP digit boxes — the signature element for the auth flow ── */
+
+.otp-row {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.otp-digit {
+  width: 100%;
+  aspect-ratio: 1;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  color: var(--color-text);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.otp-digit:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(242, 169, 59, 0.18);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}
+
+
