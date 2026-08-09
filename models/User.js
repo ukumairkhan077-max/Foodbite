@@ -1,5 +1,6 @@
 // models/User.js
-import mongoose, { Schema, models, model } from "mongoose";
+import mongoose from "mongoose";
+const { Schema, models, model } = mongoose;
 
 // Embedded subdocument — no need for a separate Address collection
 const AddressSchema = new Schema(
@@ -32,13 +33,6 @@ const UserSchema = new Schema(
     isVerified: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true },
     isProfileComplete: { type: Boolean, default: false },
-
-    // OTP fields — hashed, never store plain OTP
-    otp: {
-      codeHash: { type: String, select: false },
-      expiresAt: { type: Date, select: false },
-      attempts: { type: Number, default: 0, select: false },
-    },
 
     createdBy: { type: Schema.Types.ObjectId, ref: "User" },
 
