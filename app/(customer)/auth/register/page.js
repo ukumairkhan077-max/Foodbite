@@ -1,10 +1,17 @@
 "use client";
 // app/(customer)/auth/register/page.js
-// Step 1 of signup: customer enters their phone number, backend sends an OTP.
+// Step 1 of signup: customer enters their phone number. Firebase sends the OTP
+// directly via SMS (we never touch the actual SMS sending) — this requires an
+// invisible reCAPTCHA to prove it's a real browser, which Firebase sets up itself.
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { apiClient } from "@/lib/apiClient";
+import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+import { firebaseAuth } from "@/lib/firebase";
+
+function toE164(pkPhone) {
+  return "+92" + pkPhone.slice(1);
+}
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -18,10 +25,23 @@ export default function RegisterPage() {
     setIsSubmitting(true);
 
     try {
-      await apiClient.post("/auth/register", { phone });
+      // Invisible reCAPTCHA — renders into this div but shows no visible challenge
+      // unless Firebase's risk detection decides it needs to (rare).
+      if (!window.recaptchaVerifier) {
+        window.recaptchaVerifier = new RecaptchaVerifier(firebaseAuth, "recaptcha-container", {
+          size: "invisible",
+        });
+      }
+
+      const confirmationResult = await signInWithPhoneNumber(firebaseAuth, toE164(phone), window.recaptchaVerifier);
+
+      // Stored on window rather than passed via URL/state, since it's a live object
+      // (not serializable) that verify-otp needs to call .confirm() on next.
+      window.__confirmationResult = confirmationResult;
+
       router.push(`/auth/verify-otp?phone=${encodeURIComponent(phone)}`);
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Failed to send verification code.");
     } finally {
       setIsSubmitting(false);
     }
@@ -66,6 +86,9 @@ export default function RegisterPage() {
           </a>
         </p>
       </div>
+
+      {/* Firebase renders its invisible reCAPTCHA widget into this div */}
+      <div id="recaptcha-container" />
     </div>
   );
 }
