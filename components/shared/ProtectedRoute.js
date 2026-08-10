@@ -14,7 +14,7 @@ export default function ProtectedRoute({ children, allowedRoles, redirectTo = "/
   const router = useRouter();
 
   useEffect(() => {
-    if (isLoading) return;
+    if (isLoading) return; // wait for the initial /auth/me check to finish
 
     if (!user) {
       router.replace(redirectTo);

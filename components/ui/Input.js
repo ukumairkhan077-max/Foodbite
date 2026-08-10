@@ -1,5 +1,6 @@
 // components/ui/Input.js
-// Wraps the .text-input class from globals.css with an optional label and error message.
+// Wraps the .text-input class from globals.css with an optional label and error message,
+// so form pages don't have to repeat that markup every time.
 
 export default function Input({ label, id, error, style, ...rest }) {
   return (
