@@ -1,5 +1,6 @@
 // models/Order.js
-import { Schema, models, model } from "mongoose";
+import mongoose from "mongoose";
+const { Schema, models, model } = mongoose;
 
 // Embedded — items are always read/written together with the order, never queried independently
 const OrderItemSchema = new Schema(

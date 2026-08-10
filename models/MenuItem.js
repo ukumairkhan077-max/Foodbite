@@ -1,5 +1,6 @@
 // models/MenuItem.js
-import { Schema, models, model } from "mongoose";
+import mongoose from "mongoose";
+const { Schema, models, model } = mongoose;
 
 // Embedded — e.g. Small/Medium/Large with a price difference from the base price
 const VariantSchema = new Schema(

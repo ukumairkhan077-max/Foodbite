@@ -1,7 +1,8 @@
 "use client";
-// app/(customer)/menu/page.js — Full menu with category filter tabs
+// app/(customer)/menu/page.js — Full menu with category filter pills
 import { useEffect, useState } from "react";
 import { apiClient } from "@/lib/apiClient";
+import { dummyCategories, getDummyMenuItemsWithCategory } from "@/data/dummyMenuData";
 import Navbar from "@/components/customer/Navbar";
 import Footer from "@/components/customer/Footer";
 import ItemCard from "@/components/customer/ItemCard";
@@ -9,53 +10,82 @@ import Spinner from "@/components/ui/Spinner";
 
 export default function MenuPage() {
   const [categories, setCategories] = useState([]);
-  const [items, setItems] = useState([]);
+  const [allItems, setAllItems] = useState([]);
   const [activeCategory, setActiveCategory] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [usingDemoData, setUsingDemoData] = useState(false);
 
+  // Load categories — fall back to demo categories if the API/DB is empty or unreachable.
   useEffect(() => {
-    apiClient.get("/categories").then((data) => setCategories(data.categories)).catch(() => {});
+    apiClient
+      .get("/categories")
+      .then((data) => {
+        if (data.categories && data.categories.length > 0) {
+          setCategories(data.categories);
+        } else {
+          setCategories(dummyCategories);
+          setUsingDemoData(true);
+        }
+      })
+      .catch(() => {
+        setCategories(dummyCategories);
+        setUsingDemoData(true);
+      });
   }, []);
 
+  // Load all menu items once — filtering by category happens client-side so the
+  // demo-data fallback works the same way the real API's ?category= filter does.
   useEffect(() => {
     setIsLoading(true);
-    const query = activeCategory ? `?category=${activeCategory}` : "";
     apiClient
-      .get(`/menu${query}`)
-      .then((data) => setItems(data.items))
-      .catch(() => setItems([]))
+      .get("/menu")
+      .then((data) => {
+        if (data.items && data.items.length > 0) {
+          setAllItems(data.items);
+        } else {
+          setAllItems(getDummyMenuItemsWithCategory());
+          setUsingDemoData(true);
+        }
+      })
+      .catch(() => {
+        setAllItems(getDummyMenuItemsWithCategory());
+        setUsingDemoData(true);
+      })
       .finally(() => setIsLoading(false));
-  }, [activeCategory]);
+  }, []);
+
+  const items = activeCategory
+    ? allItems.filter((item) => (item.category?._id || item.category) === activeCategory)
+    : allItems;
 
   return (
     <>
       <Navbar />
-      <main style={{ maxWidth: 1100, margin: "0 auto", padding: "40px 24px" }}>
-        <h1 style={{ fontSize: 28, marginBottom: 20 }}>Menu</h1>
+      <main className="page-container">
+        <p className="section-eyebrow">Bold Flavors. Zero Mercy.</p>
+        <h1 className="section-title" style={{ fontSize: 34, marginBottom: 24 }}>Full Menu</h1>
 
-        <div style={{ display: "flex", gap: 10, marginBottom: 28, flexWrap: "wrap" }}>
+        {usingDemoData && (
+          <p style={{ color: "var(--color-text-muted)", fontSize: 13, marginTop: -12, marginBottom: 24 }}>
+            Showing demo menu data — connect your database and run <code>npm run seed:data</code> to load real
+            items.
+          </p>
+        )}
+
+        <div className="category-pills">
           <button
+            className={`category-pill ${!activeCategory ? "active" : ""}`}
             onClick={() => setActiveCategory(null)}
-            style={{
-              padding: "8px 16px", borderRadius: 999, cursor: "pointer",
-              background: !activeCategory ? "var(--color-accent)" : "var(--color-surface)",
-              color: !activeCategory ? "#1a1410" : "var(--color-text)",
-              border: "1px solid var(--color-border)", fontWeight: 600, fontSize: 13,
-            }}
           >
-            All
+            🔥 All
           </button>
           {categories.map((cat) => (
             <button
               key={cat._id}
+              className={`category-pill ${activeCategory === cat._id ? "active" : ""}`}
               onClick={() => setActiveCategory(cat._id)}
-              style={{
-                padding: "8px 16px", borderRadius: 999, cursor: "pointer",
-                background: activeCategory === cat._id ? "var(--color-accent)" : "var(--color-surface)",
-                color: activeCategory === cat._id ? "#1a1410" : "var(--color-text)",
-                border: "1px solid var(--color-border)", fontWeight: 600, fontSize: 13,
-              }}
             >
+              {cat.icon ? `${cat.icon} ` : ""}
               {cat.name}
             </button>
           ))}
@@ -66,7 +96,7 @@ export default function MenuPage() {
         ) : items.length === 0 ? (
           <p style={{ color: "var(--color-text-muted)" }}>No items found.</p>
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 20 }}>
+          <div className="item-grid">
             {items.map((item) => (
               <ItemCard key={item._id} item={item} />
             ))}

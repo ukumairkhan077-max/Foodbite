@@ -14,7 +14,7 @@ export default function SupportPage() {
         <p>📞 0800-11223</p>
         <p>✉️ support@foodbite.com</p>
       </main>
-      <Footer />a
+      <Footer />
     </>
   );
 }

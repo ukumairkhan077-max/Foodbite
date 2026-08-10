@@ -39,6 +39,7 @@ export async function POST(req) {
 
     await dbConnect();
 
+    // Verify the customer actually ordered this item, if an orderId was provided
     if (orderId) {
       const order = await Order.findOne({ _id: orderId, user: authUser.userId });
       if (!order) return errorResponse("Order not found.", 404);

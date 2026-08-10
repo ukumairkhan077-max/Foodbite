@@ -1,9 +1,13 @@
 // app/api/upload/route.js
-// Stub for image uploads (menu item photos, category images, etc.).
-// Replace the TODO with your chosen provider — Cloudinary, UploadThing, or S3 are common choices.
-
+import { v2 as cloudinary } from "cloudinary";
 import { successResponse, errorResponse } from "@/utils/response";
 import { requireRole } from "@/lib/auth";
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 export async function POST(req) {
   try {
@@ -14,11 +18,20 @@ export async function POST(req) {
     const file = formData.get("file");
     if (!file) return errorResponse("No file provided.");
 
-    // TODO: upload `file` to Cloudinary/S3/UploadThing here and get back a public URL.
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
 
-    return errorResponse("Image upload provider not yet configured.", 501);
+    const result = await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        { folder: "foodbite/menu-items" }, // keeps uploads organized in Cloudinary's dashboard
+        (error, result) => (error ? reject(error) : resolve(result))
+      );
+      uploadStream.end(buffer);
+    });
+
+    return successResponse({ url: result.secure_url }, 201);
   } catch (err) {
     console.error("upload error:", err);
-    return errorResponse("Something went wrong.", 500);
+    return errorResponse("Something went wrong uploading the image.", 500);
   }
 }

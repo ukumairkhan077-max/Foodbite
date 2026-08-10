@@ -30,6 +30,7 @@ export async function GET(req) {
 
     const todayRevenue = revenueAgg[0]?.total || 0;
 
+    // Top 5 best-selling items overall
     const topItems = await Order.aggregate([
       { $match: { status: { $ne: "CANCELLED" } } },
       { $unwind: "$items" },
@@ -39,7 +40,13 @@ export async function GET(req) {
     ]);
 
     return successResponse({
-      stats: { todayOrders, todayRevenue, totalCustomers, pendingOrders, topItems },
+      stats: {
+        todayOrders,
+        todayRevenue,
+        totalCustomers,
+        pendingOrders,
+        topItems,
+      },
     });
   } catch (err) {
     console.error("dashboard stats error:", err);

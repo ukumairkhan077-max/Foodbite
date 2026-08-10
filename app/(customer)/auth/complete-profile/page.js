@@ -3,12 +3,23 @@
 // Step 3 of signup: customer sets name, email, password using the tempToken
 // from OTP verification. On success, they're fully logged in.
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { apiClient } from "@/lib/apiClient";
 import { useAuth } from "@/context/AuthContext";
 
+// useSearchParams() opts the page into client-side rendering, which Next.js
+// requires to be wrapped in a Suspense boundary — otherwise `next build` fails
+// with "useSearchParams() should be wrapped in a suspense boundary".
 export default function CompleteProfilePage() {
+  return (
+    <Suspense fallback={null}>
+      <CompleteProfileForm />
+    </Suspense>
+  );
+}
+
+function CompleteProfileForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { login } = useAuth();
@@ -51,27 +62,45 @@ export default function CompleteProfilePage() {
         <p className="auth-subtitle">Your phone is verified — just a few more details.</p>
 
         <form onSubmit={handleSubmit}>
-          <label className="field-label" htmlFor="name">Full name</label>
+          <label className="field-label" htmlFor="name">
+            Full name
+          </label>
           <input
-            id="name" className="text-input" style={{ marginBottom: 16 }}
-            type="text" placeholder="Ali Khan"
-            value={form.name} onChange={(e) => updateField("name", e.target.value)}
-            required autoFocus
+            id="name"
+            className="text-input"
+            style={{ marginBottom: 16 }}
+            type="text"
+            placeholder="Ali Khan"
+            value={form.name}
+            onChange={(e) => updateField("name", e.target.value)}
+            required
+            autoFocus
           />
 
-          <label className="field-label" htmlFor="email">Email</label>
+          <label className="field-label" htmlFor="email">
+            Email
+          </label>
           <input
-            id="email" className="text-input" style={{ marginBottom: 16 }}
-            type="email" placeholder="ali@example.com"
-            value={form.email} onChange={(e) => updateField("email", e.target.value)}
+            id="email"
+            className="text-input"
+            style={{ marginBottom: 16 }}
+            type="email"
+            placeholder="ali@example.com"
+            value={form.email}
+            onChange={(e) => updateField("email", e.target.value)}
             required
           />
 
-          <label className="field-label" htmlFor="password">Password</label>
+          <label className="field-label" htmlFor="password">
+            Password
+          </label>
           <input
-            id="password" className="text-input"
-            type="password" placeholder="At least 8 characters"
-            value={form.password} onChange={(e) => updateField("password", e.target.value)}
+            id="password"
+            className="text-input"
+            type="password"
+            placeholder="At least 8 characters"
+            value={form.password}
+            onChange={(e) => updateField("password", e.target.value)}
             required
           />
 

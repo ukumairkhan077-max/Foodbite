@@ -1,8 +1,8 @@
 "use client";
 // context/CartContext.js
 // In-memory cart state (per browser session). Each cart line stores the menuItemId,
-// chosen variant/add-ons, quantity, and a price snapshot — mirrors how the backend's
-// Order.items are structured, so checkout can send this shape directly.
+// chosen variant/add-ons, quantity, and a snapshot of price/name — mirrors how
+// the backend's Order.items are structured, so checkout can send this shape directly.
 
 import { createContext, useContext, useMemo, useState } from "react";
 

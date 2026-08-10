@@ -1,11 +1,11 @@
 // app/api/payment/stripe/route.js
-// Stub for card payments via Stripe. Once you `npm install stripe`, initialize it
-// with process.env.STRIPE_SECRET_KEY and create a PaymentIntent here.
-
+import Stripe from "stripe";
 import dbConnect from "@/lib/dbConnect";
 import Order from "@/models/Order";
 import { successResponse, errorResponse } from "@/utils/response";
 import { getAuthUser } from "@/lib/auth";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export async function POST(req) {
   try {
@@ -18,18 +18,17 @@ export async function POST(req) {
     await dbConnect();
     const order = await Order.findOne({ _id: orderId, user: authUser.userId });
     if (!order) return errorResponse("Order not found.", 404);
+    if (order.isPaid) return errorResponse("This order is already paid.", 409);
 
-    // TODO: const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-    // const paymentIntent = await stripe.paymentIntents.create({
-    //   amount: Math.round(order.total * 100),
-    //   currency: "pkr",
-    //   metadata: { orderId: order._id.toString() },
-    // });
-    // return successResponse({ clientSecret: paymentIntent.client_secret });
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(order.total * 100), // Stripe wants the smallest currency unit (paisa, not rupees)
+      currency: "pkr",
+      metadata: { orderId: order._id.toString() }, // used by the webhook to find the order back
+    });
 
-    return errorResponse("Stripe integration not yet configured.", 501);
+    return successResponse({ clientSecret: paymentIntent.client_secret });
   } catch (err) {
     console.error("stripe payment error:", err);
-    return errorResponse("Something went wrong.", 500);
+    return errorResponse("Something went wrong initiating payment.", 500);
   }
 }

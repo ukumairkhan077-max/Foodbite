@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { apiClient } from "@/lib/apiClient";
+import { getDummyMenuItemsWithCategory } from "@/data/dummyMenuData";
 import { useCart } from "@/context/CartContext";
 import { formatPrice } from "@/lib/formatPrice";
 import Navbar from "@/components/customer/Navbar";
@@ -24,12 +25,23 @@ export default function ItemDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    function loadFromDummyData() {
+      // Handles two cases: the API/DB is unreachable, OR the id is a demo id
+      // like "dummy-001" that only exists in the local fallback data (not a
+      // real MongoDB _id, so the API correctly can't find it).
+      const dummyItem = getDummyMenuItemsWithCategory().find((i) => i._id === id);
+      setItem(dummyItem || null);
+      if (dummyItem?.variants?.length) setSelectedVariant(dummyItem.variants[0].name);
+    }
+
     apiClient
       .get(`/menu/${id}`)
       .then((data) => {
         setItem(data.item);
         if (data.item.variants?.length) setSelectedVariant(data.item.variants[0].name);
       })
+      .catch(loadFromDummyData) // bug fix: this had no .catch() before, so any
+      // failed/not-found lookup left the page stuck showing "Item not found."
       .finally(() => setIsLoading(false));
 
     apiClient.get(`/reviews?menuItem=${id}`).then((data) => setReviews(data.reviews)).catch(() => {});

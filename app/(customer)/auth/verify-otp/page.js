@@ -1,15 +1,27 @@
 "use client";
 // app/(customer)/auth/verify-otp/page.js
-// Step 2 of signup: customer enters the 6-digit OTP as individual boxes
-// (the signature interaction of the auth flow). On success, moves to profile completion.
+// Step 2: customer enters the code Firebase texted them. We confirm it directly
+// with Firebase (not our backend), then send the resulting ID token to our
+// backend's verify-otp route so it can find/create the User and issue a tempToken.
 
-import { useRef, useState } from "react";
+import { Suspense, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { apiClient } from "@/lib/apiClient";
 
 const OTP_LENGTH = 6;
 
+// useSearchParams() opts the page into client-side rendering, which Next.js
+// requires to be wrapped in a Suspense boundary — otherwise `next build` fails
+// with "useSearchParams() should be wrapped in a suspense boundary".
 export default function VerifyOtpPage() {
+  return (
+    <Suspense fallback={null}>
+      <VerifyOtpForm />
+    </Suspense>
+  );
+}
+
+function VerifyOtpForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const phone = searchParams.get("phone") || "";
@@ -24,10 +36,7 @@ export default function VerifyOtpPage() {
     const next = [...digits];
     next[index] = cleaned;
     setDigits(next);
-
-    if (cleaned && index < OTP_LENGTH - 1) {
-      inputRefs.current[index + 1]?.focus();
-    }
+    if (cleaned && index < OTP_LENGTH - 1) inputRefs.current[index + 1]?.focus();
   }
 
   function handleKeyDown(index, e) {
@@ -54,23 +63,24 @@ export default function VerifyOtpPage() {
       return;
     }
 
+    if (!window.__confirmationResult) {
+      setError("Your verification session expired. Please request a new code.");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      const data = await apiClient.post("/auth/verify-otp", { phone, otp });
+      // Firebase itself checks the code is correct here — not our backend
+      const userCredential = await window.__confirmationResult.confirm(otp);
+      const idToken = await userCredential.user.getIdToken();
+
+      // Now our backend verifies that token and finds/creates the matching User
+      const data = await apiClient.post("/auth/verify-otp", { idToken });
       router.push(`/auth/complete-profile?tempToken=${encodeURIComponent(data.tempToken)}`);
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Incorrect code. Please try again.");
     } finally {
       setIsSubmitting(false);
-    }
-  }
-
-  async function handleResend() {
-    setError("");
-    try {
-      await apiClient.post("/auth/register", { phone });
-    } catch (err) {
-      setError(err.message);
     }
   }
 
@@ -109,14 +119,7 @@ export default function VerifyOtpPage() {
         </form>
 
         <p style={{ marginTop: 20, fontSize: 14, color: "var(--color-text-muted)" }}>
-          Didn't get a code?{" "}
-          <button
-            onClick={handleResend}
-            className="helper-link"
-            style={{ background: "none", border: "none", padding: 0, cursor: "pointer", font: "inherit" }}
-          >
-            Resend
-          </button>
+          Didn't get a code? <a className="helper-link" href="/auth/register">Start over</a>
         </p>
       </div>
     </div>

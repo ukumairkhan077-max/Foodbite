@@ -37,6 +37,7 @@ export async function POST(req) {
     const user = await User.findById(authUser.userId);
     if (!user) return errorResponse("User not found.", 404);
 
+    // If this new address is marked default, unset default on all existing ones
     if (isDefault) {
       user.addresses.forEach((addr) => (addr.isDefault = false));
     }

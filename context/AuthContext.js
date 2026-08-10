@@ -21,7 +21,7 @@ export function AuthProvider({ children }) {
       const data = await apiClient.get("/auth/me");
       setUser(data.user);
     } catch {
-      setUser(null);
+      setUser(null); // not logged in, or token expired — both are fine, just show as logged out
     } finally {
       setIsLoading(false);
     }

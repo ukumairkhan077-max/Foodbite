@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { apiClient } from "@/lib/apiClient";
+import { dummyCategories, getDummyMenuItemsWithCategory } from "@/data/dummyMenuData";
 import Navbar from "@/components/customer/Navbar";
 import Footer from "@/components/customer/Footer";
 import ItemCard from "@/components/customer/ItemCard";
@@ -14,22 +15,44 @@ export default function CategoryMenuPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    setIsLoading(true);
     apiClient
       .get(`/menu?category=${category}`)
-      .then((data) => setItems(data.items))
-      .catch(() => setItems([]))
+      .then((data) => {
+        if (data.items && data.items.length > 0) {
+          setItems(data.items);
+        } else {
+          setItems(
+            getDummyMenuItemsWithCategory().filter(
+              (item) => item.category?._id === category || item.category?.slug === category
+            )
+          );
+        }
+      })
+      .catch(() => {
+        setItems(
+          getDummyMenuItemsWithCategory().filter(
+            (item) => item.category?._id === category || item.category?.slug === category
+          )
+        );
+      })
       .finally(() => setIsLoading(false));
   }, [category]);
+
+  const categoryName = dummyCategories.find((c) => c.slug === category)?.name || category;
 
   return (
     <>
       <Navbar />
-      <main style={{ maxWidth: 1100, margin: "0 auto", padding: "40px 24px" }}>
-        <h1 style={{ fontSize: 28, marginBottom: 20, textTransform: "capitalize" }}>{category}</h1>
+      <main className="page-container">
+        <p className="section-eyebrow">Menu</p>
+        <h1 className="section-title" style={{ fontSize: 30, textTransform: "capitalize" }}>{categoryName}</h1>
         {isLoading ? (
           <Spinner />
+        ) : items.length === 0 ? (
+          <p style={{ color: "var(--color-text-muted)" }}>No items found in this category.</p>
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 20 }}>
+          <div className="item-grid">
             {items.map((item) => (
               <ItemCard key={item._id} item={item} />
             ))}

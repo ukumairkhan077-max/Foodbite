@@ -49,19 +49,31 @@ export default function AdminLoginPage() {
         <p className="auth-subtitle">Manage orders, menu, and branches.</p>
 
         <form onSubmit={handleSubmit}>
-          <label className="field-label" htmlFor="email">Email</label>
+          <label className="field-label" htmlFor="email">
+            Email
+          </label>
           <input
-            id="email" className="text-input" style={{ marginBottom: 16 }}
-            type="email" placeholder="admin@foodbite.com"
-            value={form.email} onChange={(e) => updateField("email", e.target.value)}
-            required autoFocus
+            id="email"
+            className="text-input"
+            style={{ marginBottom: 16 }}
+            type="email"
+            placeholder="admin@foodbite.com"
+            value={form.email}
+            onChange={(e) => updateField("email", e.target.value)}
+            required
+            autoFocus
           />
 
-          <label className="field-label" htmlFor="password">Password</label>
+          <label className="field-label" htmlFor="password">
+            Password
+          </label>
           <input
-            id="password" className="text-input"
-            type="password" placeholder="Your password"
-            value={form.password} onChange={(e) => updateField("password", e.target.value)}
+            id="password"
+            className="text-input"
+            type="password"
+            placeholder="Your password"
+            value={form.password}
+            onChange={(e) => updateField("password", e.target.value)}
             required
           />
 

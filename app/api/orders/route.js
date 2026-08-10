@@ -7,7 +7,7 @@ import Branch from "@/models/Branch";
 import { successResponse, errorResponse } from "@/utils/response";
 import { getAuthUser, requireRole } from "@/lib/auth";
 
-// GET /api/orders — customers see their own orders; admin sees all/filtered orders
+// GET /api/orders — customers see their own orders; admin/branch manager see all orders for their branch
 export async function GET(req) {
   try {
     const authUser = getAuthUser(req);
