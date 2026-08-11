@@ -71,7 +71,7 @@ export default function HomePage() {
             }}
           >
             <img
-              src="/images/hero-burger.png"
+              src="/images/first.png"
               alt="Signature smash burger with fries"
               style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
             />
